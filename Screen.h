@@ -48,12 +48,17 @@ const uint8_t  Axes_bits[]U8G_PROGMEM = {
   0x0a, 0x20, 0x00, 0x06, 0x50, 0x00, 0x0e, 0x88, 0x00, 0x00, 0x00, 0x00
 };
 
+#define Arrow_width 10
+#define Arrow_height 5
+const uint8_t Arrow_bits[]U8G_PROGMEM = {
+  0x60, 0x00, 0xfe, 0x00, 0xfe, 0x01, 0xfe, 0x00, 0x60, 0x00
+};
 
 class Screen {
-
   public:
     Screen();
     void homePage();
+    void mainMenu();
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
@@ -70,6 +75,7 @@ class Screen {
     void _draw_axis();
     void _make_coordinates();
     void _other();
+    void _drawArrow();
     String __file_name = "NONE";
     float __time_left = 00.00 , __work_precentage = 00.00;
 
@@ -139,28 +145,50 @@ void Screen:: _other() {
   u8g.drawStr(28, 44, "Name:");
   u8g.drawStr(60, 44, __file_name.c_str());
   u8g.drawStr(2, 53, t.c_str());
-  u8g.drawVLine(33,55,8);
+  u8g.drawVLine(33, 55, 8);
   u8g.drawStr(40, 53, w.c_str());
   u8g.drawStr(70, 53, "%");
-  u8g.drawVLine(77,55,8); 
+  u8g.drawVLine(77, 55, 8);
   u8g.drawFrame(80, 56, 45, 6);
   u8g.drawBox(80, 56, box_width, 6);
-  //u8g.drawHLine(2 , 55 , 10);
 }
 
 void Screen:: homePage() {
-  _draw_spindle();
-  _draw_Sd_card();
-  _draw_axis();
-  _make_coordinates();
-  _other();
-  //u8g.drawFrame(0, 0, 128, 64);
+  u8g.firstPage();
+  do {
+    _draw_spindle();
+    _draw_Sd_card();
+    _draw_axis();
+    _make_coordinates();
+    _other();
+  } while ( u8g.nextPage() );
+}
 
+void Screen:: mainMenu() {
+  u8g.setFontPosCenter();
+  u8g.setFont(u8g_font_6x10);
+  u8g.drawFrame(0, 0, 128, 64);
+  u8g.drawStr(35, 9, "Main Menu");
+  u8g.drawHLine(30 , 13 , 62);
+  //
+  u8g.drawHLine(5 , 25 , 5);
+  u8g.drawStr(12 , 25 , "Jogging.");
+  u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+  //
+  u8g.drawHLine(5 , 40, 5);
+  u8g.drawStr(12 , 40 , "Configration.");
+  u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+  //
+  u8g.drawHLine(5 , 55 , 5);
+  u8g.drawStr(12 , 55 , "SD-Card Files.");
+  if (sdCard_status) {
+    u8g.drawXBMP( 115, 52, Arrow_width, Arrow_height, Arrow_bits);
+  }
 }
 
 void Screen ::go() {
   u8g.firstPage();
   do {
-    homePage();
+    mainMenu();
   } while ( u8g.nextPage() );
 }
