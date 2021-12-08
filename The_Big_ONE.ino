@@ -7,5 +7,5 @@ void setup(void) {
 }
 
 void loop(void) {
-new_s._ready();
+new_s.go();
 }
