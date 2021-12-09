@@ -59,6 +59,7 @@ class Screen {
     Screen();
     void homePage();
     void mainMenu();
+    void jogMenu();
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
@@ -78,6 +79,7 @@ class Screen {
     void _drawArrow();
     String __file_name = "NONE";
     float __time_left = 00.00 , __work_precentage = 00.00;
+    int __text_begin = 12 , __line_begin = 5;
 
 };
 //u8g.setFont(u8g_font_6x12);
@@ -165,30 +167,56 @@ void Screen:: homePage() {
 }
 
 void Screen:: mainMenu() {
-  u8g.setFontPosCenter();
-  u8g.setFont(u8g_font_6x10);
-  u8g.drawFrame(0, 0, 128, 64);
-  u8g.drawStr(35, 9, "Main Menu");
-  u8g.drawHLine(30 , 13 , 62);
-  //
-  u8g.drawHLine(5 , 25 , 5);
-  u8g.drawStr(12 , 25 , "Jogging.");
-  u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
-  //
-  u8g.drawHLine(5 , 40, 5);
-  u8g.drawStr(12 , 40 , "Configration.");
-  u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
-  //
-  u8g.drawHLine(5 , 55 , 5);
-  u8g.drawStr(12 , 55 , "SD-Card Files.");
-  if (sdCard_status) {
-    u8g.drawXBMP( 115, 52, Arrow_width, Arrow_height, Arrow_bits);
-  }
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(35, 9, "Main Menu");
+    u8g.drawHLine(30 , 14 , 62);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , "Jogging.");
+    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , "Configration.");
+    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.drawStr(__text_begin , 55 , "SD-Card Files.");
+    if (sdCard_status) {
+      u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
+    }
+  } while ( u8g.nextPage() );
+}
+
+void Screen:: jogMenu() {
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(30, 9, "Jogging Menu");
+    u8g.drawHLine(28 , 14 , 75);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , "Move Axis.");
+    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , "Homing.");
+    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.drawStr(__text_begin , 55 , "Set New Origin.");
+    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
+  } while ( u8g.nextPage() );
 }
 
 void Screen ::go() {
-  u8g.firstPage();
-  do {
-    mainMenu();
-  } while ( u8g.nextPage() );
+  //  u8g.firstPage();
+  //  do {
+  //    mainMenu();
+  //  } while ( u8g.nextPage() );
 }
