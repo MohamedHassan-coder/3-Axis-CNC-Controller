@@ -69,6 +69,8 @@ class Screen {
     void setSpindle_status();
     void current_file_data(String  , float , float );
     void go();
+    void setSelection(int);
+
 
   private:
     void _draw_spindle();
@@ -77,9 +79,11 @@ class Screen {
     void _make_coordinates();
     void _other();
     void _drawArrow();
+    void _drawSelectionBox(int);
     String __file_name = "NONE";
     float __time_left = 00.00 , __work_precentage = 00.00;
     int __text_begin = 12 , __line_begin = 5;
+    int __selection = 1;
 
 };
 //u8g.setFont(u8g_font_6x12);
@@ -155,6 +159,10 @@ void Screen:: _other() {
   u8g.drawBox(80, 56, box_width, 6);
 }
 
+void Screen:: setSelection(int select) {
+  __selection = select;
+}
+
 void Screen:: homePage() {
   u8g.firstPage();
   do {
@@ -166,9 +174,27 @@ void Screen:: homePage() {
   } while ( u8g.nextPage() );
 }
 
+
+void Screen:: _drawSelectionBox(int selecttion) {
+  switch (selecttion) {
+    case 1:
+      u8g.drawHLine(2 , 18 , 124);
+      u8g.drawHLine(2 , 31 , 124);
+      break;
+    case 2:
+      u8g.drawHLine(2 , 32 , 124);
+      u8g.drawHLine(2 , 45 , 124);
+      break;
+    case 3:
+      u8g.drawHLine(2 , 45 , 124);
+      u8g.drawHLine(2 , 60 , 124);
+      break;
+  }
+}
 void Screen:: mainMenu() {
   u8g.firstPage();
   do {
+    _drawSelectionBox(__selection);
     u8g.setFontPosCenter();
     u8g.setFont(u8g_font_6x10);
     u8g.drawFrame(0, 0, 128, 64);
@@ -211,12 +237,14 @@ void Screen:: jogMenu() {
     u8g.drawHLine(__line_begin , 55 , 5);
     u8g.drawStr(__text_begin , 55 , "Set New Origin.");
     u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
+    _drawSelectionBox(__selection);
   } while ( u8g.nextPage() );
 }
 
+
 void Screen ::go() {
-  //  u8g.firstPage();
-  //  do {
-  //    mainMenu();
-  //  } while ( u8g.nextPage() );
+  u8g.firstPage();
+  do {
+    mainMenu();
+  } while ( u8g.nextPage() );
 }
