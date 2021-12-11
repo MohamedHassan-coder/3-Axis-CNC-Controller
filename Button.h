@@ -37,6 +37,9 @@ bool Push_Button:: get_current_status() {
   _last_status = _current_status;
 
   return _current_status;
+    millis();
+    delay(50);
+  return LOW;
 }
 
 bool Push_Button:: get_last_status() {

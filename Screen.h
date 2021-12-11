@@ -60,6 +60,9 @@ class Screen {
     void homePage();
     void mainMenu();
     void jogMenu();
+    void mcConfig1();
+    void mcConfig2();
+    void features();
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
@@ -192,14 +195,18 @@ void Screen:: _drawSelectionBox(int selecttion) {
   }
 }
 void Screen:: mainMenu() {
+
+  String s = "Main Menu";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
   u8g.firstPage();
   do {
     _drawSelectionBox(__selection);
     u8g.setFontPosCenter();
     u8g.setFont(u8g_font_6x10);
     u8g.drawFrame(0, 0, 128, 64);
-    u8g.drawStr(35, 9, "Main Menu");
-    u8g.drawHLine(30 , 14 , 62);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
     //
     u8g.drawHLine(__line_begin , 25 , 5);
     u8g.drawStr(__text_begin , 25 , "Jogging.");
@@ -210,21 +217,23 @@ void Screen:: mainMenu() {
     u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
     //
     u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , "SD-Card Files.");
-    if (sdCard_status) {
-      u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
-    }
+    u8g.drawStr(__text_begin , 55 , "Cool Things.");
+    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
   } while ( u8g.nextPage() );
 }
 
 void Screen:: jogMenu() {
+  String s = "Jogging Menu";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
   u8g.firstPage();
   do {
+    _drawSelectionBox(__selection);
     u8g.setFontPosCenter();
     u8g.setFont(u8g_font_6x10);
     u8g.drawFrame(0, 0, 128, 64);
-    u8g.drawStr(30, 9, "Jogging Menu");
-    u8g.drawHLine(28 , 14 , 75);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
     //
     u8g.drawHLine(__line_begin , 25 , 5);
     u8g.drawStr(__text_begin , 25 , "Move Axis.");
@@ -241,10 +250,102 @@ void Screen:: jogMenu() {
   } while ( u8g.nextPage() );
 }
 
-
-void Screen ::go() {
+void Screen :: mcConfig1() {
+  String s = "M/C Config Menu";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
   u8g.firstPage();
   do {
-    mainMenu();
+    _drawSelectionBox(__selection);
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , "Callibration.");
+    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , "Feed Rate.");
+    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.drawStr(__text_begin , 55 , "Spindle Settings.");
+    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
+    _drawSelectionBox(__selection);
+
   } while ( u8g.nextPage() );
 }
+
+
+void Screen :: mcConfig2() {
+  String s = "M/C Config Menu";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  u8g.firstPage();
+  do {
+    _drawSelectionBox(__selection);
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , "Grbl Settings.");
+    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , "Screen Settings.");
+    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawStr(__text_begin , 55 , "About...");
+    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
+    _drawSelectionBox(__selection);
+
+  } while ( u8g.nextPage() );
+}
+
+void Screen:: features() {
+  String s = "Features Menu";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  u8g.firstPage();
+  do {
+    _drawSelectionBox(__selection);
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , "SD-Card Files.");
+    if (sdCard_status) {
+      u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+    }
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , "Bluetooh.");
+    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawStr(__text_begin , 55 , "IOT(: .");
+    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
+    _drawSelectionBox(__selection);
+
+  } while ( u8g.nextPage() );
+}
+
+
+//void Screen ::go() {
+//  u8g.firstPage();
+//  do {
+//    jogMenu();
+//  } while ( u8g.nextPage() );
+//}
