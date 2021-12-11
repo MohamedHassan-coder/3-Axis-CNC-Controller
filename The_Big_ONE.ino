@@ -21,8 +21,9 @@ int newState;
 int LastState;
 volatile int flag = 0;
 
-int currentMenu = 0; //0-> home screen 1->main menu 2->jog men 3->config1menu 4->config2menu 5->featuresmenu
-
+int currentMenu = 0; //0-> home screen 1->main menu 2->jog men 3->config1menu 4->featuresmenu
+int currentSubMenu = 0;
+bool multiMenu_Flag = false;
 void currentSelection();
 
 void setup(void) {
@@ -34,7 +35,7 @@ void setup(void) {
   Serial.begin(9600);
   pinMode (encoder1, INPUT);
   pinMode (encoder2, INPUT);
-  attachInterrupt(digitalPinToInterrupt(encoder1 ), currentSelection, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encoder1 ), currentSelection, HIGH);
   attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
 
 }
@@ -45,6 +46,7 @@ void loop(void) {
   while (currentMenu == 1) {
     new_s.mainMenu();
     new_s.setSelection(choice);
+
     if (!ok_btn.get_current_status()) {
       switch (choice) {
         case 1:
@@ -53,20 +55,38 @@ void loop(void) {
           while (currentMenu == 2) {
             new_s.jogMenu();
             new_s.setSelection(choice);
+            Serial.println("Jog");
+            if (!ok_btn.get_current_status()) {
+              jogging_submenu_go();
+              new_s.setSelection(choice);
+            }
           }
           break;
         case 2:
+          counter = 0;
           choice = 0;
           currentMenu = 3;
           while (currentMenu == 3) {
             new_s.mcConfig1();
             new_s.setSelection(choice);
+            while (counter > 6) {
+              multiMenu_Flag = true;
+              new_s.mcConfig2();
+              new_s.setSelection(choice);
+            }
+
+          }
+          multiMenu_Flag = false;
+          break;
+        case 3:
+          counter = 0;
+          choice = 0;
+          currentMenu = 4;
+          while (currentMenu == 4) {
+            new_s.features();
+            new_s.setSelection(choice);
           }
           break;
-
-          //currentMenu = 2;
-          //        case 2:
-          //        case 3:
       }
     }
   }
@@ -90,7 +110,11 @@ void goBack() {
       currentMenu = 1;
       break;
     case 3:
-      new_s.jogMenu();
+      new_s.mainMenu();
+      currentMenu = 1;
+      break;
+    case 4:
+      new_s.mainMenu();
       currentMenu = 1;
       break;
   }
@@ -100,7 +124,12 @@ void goBack() {
 void back() {
   __back_status = back_btn.get_current_status();
   if (!__back_status) {
-    goBack();
+    if (currentSubMenu ==  1 || currentSubMenu ==  2) {
+      new_s.jogMenu();
+      currentSubMenu = 0;
+    } else {
+      goBack();
+    }
   }
 }
 
@@ -121,6 +150,7 @@ void currentSelection() {
   int first = 2;
   int second = 4;
   int third = 6;
+  int forth = 8;
   if ( 0 <= counter && counter < first) {
     choice =  1;
   } else if (first < counter && counter < second) {
@@ -128,12 +158,47 @@ void currentSelection() {
   }
   else if (second < counter && counter < third) {
     choice =  3;
-  } else if (counter > 8) {
-    choice =  1;
-    counter = 1;
   }
-  else if (counter < -3) {
-    choice =  1;
-    counter = 1;
+  if ((multiMenu_Flag && counter > third)) {
+    int sixth = 11;
+    int seventh = 13;
+    if ( third < counter && counter < forth) {
+      choice =  1;
+    } else if (forth < counter && counter < sixth) {
+      choice =  2;
+    }
+    else if (sixth < counter && counter < seventh) {
+      choice =  3;
+    } else if (counter > seventh ) {
+      counter = 13;
+    }
+  }
+}
+
+void jogging_submenu_go() {
+  switch (choice) {
+    case 1:
+      currentSubMenu = 1;
+      while (currentSubMenu == 1) {
+        new_s.moveAxis();
+        //read data from axis bottons x,y,z
+      }
+      break;
+
+    case 2:
+      //send $H to grbl to begin homing process and set x ,y ,z = 0
+      new_s.homePage();
+      delay(5000);
+      currentMenu = 0;
+      break;
+
+    case 3:
+      currentSubMenu = 2;
+      while (currentSubMenu == 2) {
+        new_s.setOrigin();
+        //read data from axis bottons x,y,z
+        //wait for origin botton to confirm
+      }
+      break;
   }
 }

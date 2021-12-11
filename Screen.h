@@ -63,6 +63,8 @@ class Screen {
     void mcConfig1();
     void mcConfig2();
     void features();
+    void moveAxis();
+    void setOrigin();
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
@@ -241,7 +243,6 @@ void Screen:: jogMenu() {
     //
     u8g.drawHLine(__line_begin , 40, 5);
     u8g.drawStr(__text_begin , 40 , "Homing.");
-    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
     //
     u8g.drawHLine(__line_begin , 55 , 5);
     u8g.drawStr(__text_begin , 55 , "Set New Origin.");
@@ -342,10 +343,83 @@ void Screen:: features() {
   } while ( u8g.nextPage() );
 }
 
+void Screen:: moveAxis() {
+  String s = "Move Axis";
+  String xs = "X --> ";
+  String ys = "Y --> ";
+  String zs = "Z --> ";
+  String X_pos = String(x);
+  String Y_pos = String(y);
+  String Z_pos = String(z);
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  int x_width = u8g.getStrWidth(xs.c_str());
+  int y_width = u8g.getStrWidth(ys.c_str());
+  int z_width = u8g.getStrWidth(zs.c_str());
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , xs.c_str());
+    u8g.drawStr(x_width + 10, 25, X_pos.c_str());
+
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , ys.c_str());
+    u8g.drawStr(y_width + 10, 40, Y_pos.c_str());
+
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.drawStr(__text_begin , 55 , zs.c_str());
+    u8g.drawStr(z_width + 10, 55, Z_pos.c_str());
+  } while ( u8g.nextPage() );
+}
+
+void Screen:: setOrigin() {
+  String s = "Set New Origin";
+  String xs = "X --> ";
+  String ys = "Y --> ";
+  String zs = "Z --> ";
+  String X_pos = String(x);
+  String Y_pos = String(y);
+  String Z_pos = String(z);
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  int x_width = u8g.getStrWidth(xs.c_str());
+  int y_width = u8g.getStrWidth(ys.c_str());
+  int z_width = u8g.getStrWidth(zs.c_str());
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , xs.c_str());
+    u8g.drawStr(x_width + 10, 25, X_pos.c_str());
+
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , ys.c_str());
+    u8g.drawStr(y_width + 10, 40, Y_pos.c_str());
+
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.drawStr(__text_begin , 55 , zs.c_str());
+    u8g.drawStr(z_width + 10, 55, Z_pos.c_str());
+  } while ( u8g.nextPage() );
+}
 
 //void Screen ::go() {
 //  u8g.firstPage();
 //  do {
-//    jogMenu();
+//    setOrigin();
 //  } while ( u8g.nextPage() );
 //}
