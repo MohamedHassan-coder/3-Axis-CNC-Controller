@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "U8glib.h"
-U8GLIB_ST7920_128X64_1X u8g(13, 11, 10);  // SPI Com: SCK = en = 18, MOSI = rw = 16, CS = di = 17
+U8GLIB_ST7920_128X64_1X u8g(A5, 11, A4);  // SPI Com: SCK = en = 18, MOSI = rw = 16, CS = di = 17
 
 #define SD_card_width 15
 #define SD_card_height 20
