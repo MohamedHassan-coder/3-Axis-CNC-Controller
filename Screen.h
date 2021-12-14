@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "U8glib.h"
-U8GLIB_ST7920_128X64_1X u8g(A5, 11, A4);  // SPI Com: SCK = en = 18, MOSI = rw = 16, CS = di = 17
+U8GLIB_ST7920_128X64_1X u8g(10, 9, 8);  // SPI Com: SCK = en = 18, MOSI = rw = 16, CS = di = 17
 
 #define SD_card_width 15
 #define SD_card_height 20
@@ -70,11 +70,12 @@ class Screen {
     float z = 0.0;
     bool sdCard_status  , spindle_status;
     void setCoordinates(int ,  int , int );
-    void setSdCard_status();
+    void setSdCard_status(bool);
     void setSpindle_status();
     void current_file_data(String  , float , float );
     void go();
     void setSelection(int);
+    void initial();
 
 
   private:
@@ -91,9 +92,14 @@ class Screen {
     int __selection = 1;
 
 };
-//u8g.setFont(u8g_font_6x12);
+
 Screen:: Screen() {
   u8g.setColorIndex(1);
+}
+
+void Screen:: initial() {
+  u8g.setColorIndex(1);
+  mainMenu();
 }
 
 void Screen:: _draw_spindle() {
@@ -197,7 +203,7 @@ void Screen:: _drawSelectionBox(int selecttion) {
   }
 }
 void Screen:: mainMenu() {
-
+  Serial.println("Main Menu");
   String s = "Main Menu";
   int w = u8g.getStrWidth(s.c_str());
   int middle = 64 - w / 2;
@@ -415,6 +421,10 @@ void Screen:: setOrigin() {
     u8g.drawStr(__text_begin , 55 , zs.c_str());
     u8g.drawStr(z_width + 10, 55, Z_pos.c_str());
   } while ( u8g.nextPage() );
+}
+
+void Screen :: setSdCard_status(bool stat){
+  sdCard_status = stat;
 }
 
 //void Screen ::go() {

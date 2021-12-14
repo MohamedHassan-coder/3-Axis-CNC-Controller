@@ -16,18 +16,24 @@ Screen new_s;
 Push_Button ok_btn (__ok, __buzzer);
 Push_Button back_btn (__back, __buzzer);
 Encoder encoder;
+SD_CARD sd;
 
 int choice;
 int currentMenu = 0; //0-> home screen 1->main menu 2->jog men 3->config1menu 4->featuresmenu
 int currentSubMenu = 0;
 
 void setup(void) {
+  
   new_s.x = 10.02;
   new_s.y = 23.12;
   new_s.z = 7.19;
-  new_s.sdCard_status = false;
-  new_s.spindle_status = true;
+
+  new_s.spindle_status = false;
   Serial.begin(9600);
+
+  bool x = sd.sdAvailable();
+  Serial.println(x);
+  new_s.sdCard_status = x;
 
   attachInterrupt(digitalPinToInterrupt(encoder1 ), currentselect, HIGH);
   attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
@@ -37,6 +43,8 @@ void setup(void) {
 void loop(void) {
   new_s.homePage();
   nav();
+  bool  x = sd.sdAvailable();
+  new_s.sdCard_status = x;
   while (currentMenu == 1) {
     new_s.mainMenu();
     new_s.setSelection(choice);

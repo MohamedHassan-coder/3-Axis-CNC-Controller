@@ -12,7 +12,6 @@ class SD_CARD {
   public:
     SD_CARD();
     bool sdAvailable();//
-    void initialize();//
     int getFilesNumber();//
     void loadFile();
     void openFile(String);//
@@ -28,24 +27,21 @@ class SD_CARD {
     bool sd_there , file_opend;
     int number_of_files = 0;
     int serial_delay = 100;
+    String check = "FILE1.TXT";
+    int pin = 4;
 
 };
 
 SD_CARD:: SD_CARD() {
 }
 
-void SD_CARD:: initialize() {
-
-  if (!SD.begin(4)) {
-    sd_there = false;
-  } else {
-    sd_there = true;
-  }
-
-}
-
 bool SD_CARD:: sdAvailable() {
-  return sd_there;
+  if (SD.begin(pin)) {
+    return true;
+  } else {
+    return false;
+  }
+    SD.end();
 }
 
 int SD_CARD:: getFilesNumber() {
