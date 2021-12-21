@@ -12,7 +12,6 @@ class Push_Button {
     void __button_pressed();
 
 };
-
 Push_Button::Push_Button(int button_pin , int buzzer_pin) {
   _button_pin = button_pin;
   _buzzer_pin = buzzer_pin;
@@ -22,8 +21,7 @@ Push_Button::Push_Button(int button_pin , int buzzer_pin) {
 
 void Push_Button:: __button_pressed() {
   _current_status = digitalRead(_button_pin);
-  if (_last_status != _current_status)
-  {
+  if (_last_status != _current_status){
     delay(10);
     _current_status = digitalRead(_button_pin);
     digitalWrite(_buzzer_pin, HIGH);

@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "U8glib.h"
-U8GLIB_ST7920_128X64_1X u8g(10, 9, 8);  // SPI Com: SCK = en = 18, MOSI = rw = 16, CS = di = 17
+U8GLIB_ST7920_128X64_1X u8g(10, 9, 8);
 
 #define SD_card_width 15
 #define SD_card_height 20
@@ -57,6 +57,7 @@ const uint8_t Arrow_bits[]U8G_PROGMEM = {
 class Screen {
   public:
     Screen();
+    //Menues:
     void homePage();
     void mainMenu();
     void jogMenu();
@@ -65,17 +66,18 @@ class Screen {
     void features();
     void moveAxis();
     void setOrigin();
-    float x = 0.0;
-    float y = 0.0;
-    float z = 0.0;
-    bool sdCard_status  , spindle_status;
-    void setCoordinates(int ,  int , int );
-    void setSdCard_status(bool);
-    void setSpindle_status();
+    void sdFiles1();
+    void sdFiles2();
+    //
+
+    bool sdCard_status , spindle_status;
     void current_file_data(String  , float , float );
     void go();
     void setSelection(int);
-    void initial();
+    void setCoordniates(float , float , float);
+    //void setFilesData(String[6] , int[6]);
+    String names[6];
+    int sizes[6];
 
 
   private:
@@ -90,6 +92,7 @@ class Screen {
     float __time_left = 00.00 , __work_precentage = 00.00;
     int __text_begin = 12 , __line_begin = 5;
     int __selection = 1;
+    float x , y , z;
 
 };
 
@@ -97,10 +100,6 @@ Screen:: Screen() {
   u8g.setColorIndex(1);
 }
 
-void Screen:: initial() {
-  u8g.setColorIndex(1);
-  mainMenu();
-}
 
 void Screen:: _draw_spindle() {
   u8g.setFont(u8g_font_04b_03r);
@@ -140,7 +139,7 @@ void Screen:: _make_coordinates() {
   String Z_pos = String(z);
 
   u8g.setFont(u8g_font_6x12);
-  u8g.drawFrame(0, 32, 128, 11);
+  u8g.drawFrame(0, 32, 128, 11 );
   //X
   u8g.drawStr(2, 41 , "X:");
   u8g.drawStr(12, 41 , X_pos.c_str());
@@ -187,23 +186,19 @@ void Screen:: homePage() {
 
 
 void Screen:: _drawSelectionBox(int selecttion) {
-  switch (selecttion) {
-    case 1:
-      u8g.drawHLine(2 , 18 , 124);
-      u8g.drawHLine(2 , 31 , 124);
-      break;
-    case 2:
-      u8g.drawHLine(2 , 32 , 124);
-      u8g.drawHLine(2 , 45 , 124);
-      break;
-    case 3:
-      u8g.drawHLine(2 , 45 , 124);
-      u8g.drawHLine(2 , 60 , 124);
-      break;
+
+  if (selecttion == 1 || selecttion == 4 ) {
+    u8g.drawHLine(2 , 18 , 124);
+    u8g.drawHLine(2 , 31 , 124);
+  } else   if (selecttion == 2 || selecttion == 5 ) {
+    u8g.drawHLine(2 , 32 , 124);
+    u8g.drawHLine(2 , 45 , 124);
+  } else if (selecttion == 3 || selecttion == 6 ) {
+    u8g.drawHLine(2 , 45 , 124);
+    u8g.drawHLine(2 , 60 , 124);
   }
 }
 void Screen:: mainMenu() {
-  Serial.println("Main Menu");
   String s = "Main Menu";
   int w = u8g.getStrWidth(s.c_str());
   int middle = 64 - w / 2;
@@ -423,8 +418,44 @@ void Screen:: setOrigin() {
   } while ( u8g.nextPage() );
 }
 
-void Screen :: setSdCard_status(bool stat){
-  sdCard_status = stat;
+void Screen:: setCoordniates(float c1 , float c2 , float c3) {
+  x = c1;
+  y = c2;
+  z = c3;
+}
+
+void Screen::sdFiles1() {
+  String s = "SD-Card Files";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  String s1 = names[0];
+  String s2 = names[1];
+  String s3 = names[2];
+  String s11 = String(sizes[0]);
+  String s22 = String(sizes[1]);
+  String s33 = String(sizes[2]);
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , s1.c_str());
+    //u8g.drawStr(x_width + 10, 25, X_pos.c_str());
+
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , s2.c_str());
+    //u8g.drawStr(y_width + 10, 40, Y_pos.c_str());
+
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.drawStr(__text_begin , 55 , s3.c_str());
+    //u8g.drawStr(z_width + 10, 55, Z_pos.c_str());
+  } while ( u8g.nextPage() );
 }
 
 //void Screen ::go() {
