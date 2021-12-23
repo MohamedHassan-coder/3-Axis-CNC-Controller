@@ -43,8 +43,9 @@ float axis_Increment_value = 1;
 float x = 0.00 , y = 0.00 , z = 0.00;
 
 bool multiMenu = false;
-String files_names[6];
-int files_sizes[6];
+String files_names;
+String files_sizes;
+int files_num;
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -59,25 +60,29 @@ void setup(void) {
   new_s.spindle_status = true;
   new_s.setCoordniates(x , y , z);
   new_s.sdCard_status = sd.sdAvailable();
-  new_s.homePage();
+  //new_s.homePage();
   sd.getFilesData();
+  files_names = sd.files_names;
+  files_sizes = sd.files_sizes;
+  files_num = sd.getNumber();
   attachInterrupt(digitalPinToInterrupt(3), select , HIGH);
   attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
   Serial.println("Setup finished");
+  Serial.println(files_num);
+  new_s.sdFiles(files_names, files_num);
 }
 
 void loop() {
-  new_s.homePage();
-  Serial.println("home page");
-  nav();
-  while (currentMenu == 1) {
-    new_s.mainMenu();
-    Serial.println("Main Menu");
-    new_s.setSelection(choice);
-    if (!ok_btn.get_current_status()) {
-      mainMenuSelect();
-    }
-  }
+
+  //  new_s.homePage();
+  //  nav();
+  //  while (currentMenu == 1) {
+  //    new_s.mainMenu();
+  //    new_s.setSelection(choice);
+  //    if (!ok_btn.get_current_status()) {
+  //      mainMenuSelect();
+  //    }
+  //  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +179,27 @@ void jogging_submenu_go() {
   }
 }
 
+void features_submenu() {
+  switch (choice) {
+    case 1:
+      currentSubMenu = 1;
+      while (currentSubMenu == 1) {
+        sd_card_Menu();
+      }
+      break;
+    case 2:
+      //bluetooth
+      break;
+    case 3:
+      //IOT
+      break;
+
+  }
+}
+
+void sd_card_Menu() {
+
+}
 void currentselect() {
   encoder.currentSelection();
   choice = encoder.getChoice();
@@ -220,9 +246,12 @@ void mainMenuSelect() {
       choice = 0;
       currentMenu = 4;
       while (currentMenu == 4) {
-        new_s.sdFiles1();
-        //new_s.features();
+        new_s.features();
         new_s.setSelection(choice);
+        if (!ok_btn.get_current_status()) {
+          features_submenu();
+          new_s.setSelection(choice);
+        }
       }
       break;
   }
@@ -230,7 +259,6 @@ void mainMenuSelect() {
 
 void select() {
   if (multiMenu) {
-    //Serial.println("multiSelection();");
     encoder.multiSelection();
     choice = encoder.getChoice();
   } else {
@@ -262,12 +290,4 @@ void getAxis() {
     z -= axis_Increment_value;
   }
   new_s.setCoordniates(x , y , z);
-}
-
-
-void copyData() {
-  for (int i = 0 ; i < 6 ; i++) {
-    new_s.names[i] = sd.files_names[i];
-    //new_s.sizes[i] = sd.files_sizes[i];
-  }
 }

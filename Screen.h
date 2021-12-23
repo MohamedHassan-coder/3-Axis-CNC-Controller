@@ -66,8 +66,8 @@ class Screen {
     void features();
     void moveAxis();
     void setOrigin();
-    void sdFiles1();
-    void sdFiles2();
+    void sdFiles(String , int);
+    void notYet();
     //
 
     bool sdCard_status , spindle_status;
@@ -75,9 +75,7 @@ class Screen {
     void go();
     void setSelection(int);
     void setCoordniates(float , float , float);
-    //void setFilesData(String[6] , int[6]);
-    String names[6];
-    int sizes[6];
+    void setSelection_sd(int , int);
 
 
   private:
@@ -93,6 +91,8 @@ class Screen {
     int __text_begin = 12 , __line_begin = 5;
     int __selection = 1;
     float x , y , z;
+    String _getFileName(int);
+    String files_names;
 
 };
 
@@ -424,37 +424,64 @@ void Screen:: setCoordniates(float c1 , float c2 , float c3) {
   z = c3;
 }
 
-void Screen::sdFiles1() {
+void Screen:: setSelection_sd(int row , int col) {
+  int width = 10;
+  int y = 19;
+  switch (col) {
+    case 1:
+      u8g.drawHLine(54 , y + (row - 1) * 8 , width);
+      break;
+    case 2:
+      u8g.drawHLine(118 , y + (row - 1) * 8 , width);
+      break;
+  }
+}
+
+String Screen:: _getFileName(int file_number) {
+  String main = files_names;
+  String files = files_names;
+  String s1;
+  for (int i = 0; i < file_number ; i++) {
+    s1 = strtok (files.c_str(), ",");
+    files_names.replace(s1 + "," , "\0");
+    main = files_names;
+  }
+  return s1;
+}
+
+
+void Screen::sdFiles(String files_name, int file_number) {
+
   String s = "SD-Card Files";
   int w = u8g.getStrWidth(s.c_str());
   int middle = 64 - w / 2;
-  String s1 = names[0];
-  String s2 = names[1];
-  String s3 = names[2];
-  String s11 = String(sizes[0]);
-  String s22 = String(sizes[1]);
-  String s33 = String(sizes[2]);
   u8g.firstPage();
   do {
+    setSelection_sd(1, 1);
     u8g.setFontPosCenter();
     u8g.setFont(u8g_font_6x10);
+    u8g.drawStr(25, 11, s.c_str());
     u8g.drawFrame(0, 0, 128, 64);
-    u8g.drawStr(middle, 9, s.c_str());
-    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    u8g.drawHLine(22 , 14 , 83);
+    u8g.drawVLine(64, 16, 45);
     //
-    u8g.drawHLine(__line_begin , 25 , 5);
-    u8g.drawStr(__text_begin , 25 , s1.c_str());
-    //u8g.drawStr(x_width + 10, 25, X_pos.c_str());
-
-    //
-    u8g.drawHLine(__line_begin , 40, 5);
-    u8g.drawStr(__text_begin , 40 , s2.c_str());
-    //u8g.drawStr(y_width + 10, 40, Y_pos.c_str());
-
-    //
-    u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , s3.c_str());
-    //u8g.drawStr(z_width + 10, 55, Z_pos.c_str());
+    u8g.setFontPosBottom();
+    u8g.setFont(u8g_font_04b_03);
+    files_names = files_name;
+    Serial.println(files_names);
+    int x = 0;
+    int y = 0;
+    for (int i = 0 ; i <= file_number ; i++) {
+      if (i >= 0 && i < 7) {
+        String s1 = _getFileName(i);
+        u8g.drawStr(4 , 22 + (x - 1) * 8 , s1.c_str());
+        x++;
+      } else if (i >= 7 && i < 13) {
+        String s1 = _getFileName(i);
+        u8g.drawStr(68 , 22 + (y) * 8 , s1.c_str());
+        y++;
+      }
+    }
   } while ( u8g.nextPage() );
 }
 
