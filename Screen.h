@@ -74,9 +74,8 @@ class Screen {
     void current_file_data(String  , float , float );
     void go();
     void setSelection(int);
+    void sd_setSelection(int , int);
     void setCoordniates(float , float , float);
-    void setSelection_sd(int , int);
-
 
   private:
     void _draw_spindle();
@@ -93,7 +92,8 @@ class Screen {
     float x , y , z;
     String _getFileName(int);
     String files_names;
-
+    int row , column;
+    void _sd_setSelection(int , int);
 };
 
 Screen:: Screen() {
@@ -220,7 +220,7 @@ void Screen:: mainMenu() {
     u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
     //
     u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , "Cool Things.");
+    u8g.drawStr(__text_begin , 55 , "Features Menu.");
     u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
   } while ( u8g.nextPage() );
 }
@@ -335,10 +335,6 @@ void Screen:: features() {
     u8g.drawStr(__text_begin , 40 , "Bluetooh.");
     u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
     //
-    u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.setFont(u8g_font_6x10);
-    u8g.drawStr(__text_begin , 55 , "IOT(: .");
-    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
     _drawSelectionBox(__selection);
 
   } while ( u8g.nextPage() );
@@ -424,7 +420,12 @@ void Screen:: setCoordniates(float c1 , float c2 , float c3) {
   z = c3;
 }
 
-void Screen:: setSelection_sd(int row , int col) {
+void Screen :: sd_setSelection(int _row , int _column) {
+  row = _row;
+  column = _column;
+}
+
+void Screen:: _sd_setSelection(int row , int col) {
   int width = 10;
   int y = 19;
   switch (col) {
@@ -457,7 +458,7 @@ void Screen::sdFiles(String files_name, int file_number) {
   int middle = 64 - w / 2;
   u8g.firstPage();
   do {
-    setSelection_sd(1, 1);
+    _sd_setSelection(row, column);
     u8g.setFontPosCenter();
     u8g.setFont(u8g_font_6x10);
     u8g.drawStr(25, 11, s.c_str());
@@ -468,7 +469,6 @@ void Screen::sdFiles(String files_name, int file_number) {
     u8g.setFontPosBottom();
     u8g.setFont(u8g_font_04b_03);
     files_names = files_name;
-    Serial.println(files_names);
     int x = 0;
     int y = 0;
     for (int i = 0 ; i <= file_number ; i++) {

@@ -42,10 +42,11 @@ int currentSubMenu = 0;
 float axis_Increment_value = 1;
 float x = 0.00 , y = 0.00 , z = 0.00;
 
-bool multiMenu = false;
+int menu_select = 0; //0-> normal select 1->multi menu select , 2->sd card-menu select
 String files_names;
 String files_sizes;
 int files_num;
+int column , row;
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +61,7 @@ void setup(void) {
   new_s.spindle_status = true;
   new_s.setCoordniates(x , y , z);
   new_s.sdCard_status = sd.sdAvailable();
-  //new_s.homePage();
+  new_s.homePage();
   sd.getFilesData();
   files_names = sd.files_names;
   files_sizes = sd.files_sizes;
@@ -68,23 +69,19 @@ void setup(void) {
   attachInterrupt(digitalPinToInterrupt(3), select , HIGH);
   attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
   Serial.println("Setup finished");
-  Serial.println(files_num);
-  new_s.sdFiles(files_names, files_num);
 }
 
 void loop() {
-
-  //  new_s.homePage();
-  //  nav();
-  //  while (currentMenu == 1) {
-  //    new_s.mainMenu();
-  //    new_s.setSelection(choice);
-  //    if (!ok_btn.get_current_status()) {
-  //      mainMenuSelect();
-  //    }
-  //  }
+  new_s.homePage();
+  nav();
+  while (currentMenu == 1) {
+    new_s.mainMenu();
+    new_s.setSelection(choice);
+    if (!ok_btn.get_current_status()) {
+      mainMenuSelect();
+    }
+  }
 }
-
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -93,9 +90,6 @@ void loop() {
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 void nav() {
   __ok_status = ok_btn.get_current_status();
@@ -132,6 +126,9 @@ void back() {
   if (!__back_status) {
     if (currentSubMenu ==  1 || currentSubMenu ==  2) {
       new_s.jogMenu();
+      currentSubMenu = 0;
+    } if (currentSubMenu ==  3 || currentSubMenu ==  4) {
+      new_s.features();
       currentSubMenu = 0;
     } else {
       goBack();
@@ -182,24 +179,33 @@ void jogging_submenu_go() {
 void features_submenu() {
   switch (choice) {
     case 1:
-      currentSubMenu = 1;
-      while (currentSubMenu == 1) {
+      currentSubMenu = 3;
+      while (currentSubMenu == 3) {
         sd_card_Menu();
+        menu_select = 2;
       }
+      menu_select = 0;
       break;
     case 2:
       //bluetooth
       break;
-    case 3:
-      //IOT
-      break;
-
   }
 }
 
 void sd_card_Menu() {
-
+  new_s.sdFiles(files_names, files_num);
+  new_s.sd_setSelection(row , column);
+  if (!ok_btn.get_current_status()) {
+    int file_number = encoder.sd_choice;
+    String file_name = sd.getFileName(file_number);
+    Serial.println(file_number);
+    Serial.println(file_name);
+    sd.openFile(file_name);
+    sd.loadCurrentFile();
+    sd.closeFile();
+  }
 }
+
 void currentselect() {
   encoder.currentSelection();
   choice = encoder.getChoice();
@@ -226,19 +232,15 @@ void mainMenuSelect() {
       currentMenu = 3;
       choice = 0;
       while (currentMenu == 3) {
-        multiMenu = true;
+        menu_select = 1;
         new_s.mcConfig1();
         new_s.setSelection(choice);
-        Serial.print("CH1 = ");
-        Serial.println(choice);
         while (encoder.getCounter() > 8) {
           new_s.mcConfig2();
           new_s.setSelection(choice);
-          Serial.print("CH2 = ");
-          Serial.println(choice);
         }
       }
-      multiMenu = false;
+      menu_select = 0;
       break;
     case 3:
       encoder.resetCounter();
@@ -258,11 +260,15 @@ void mainMenuSelect() {
 }
 
 void select() {
-  if (multiMenu) {
+  if (menu_select == 1) {
     encoder.multiSelection();
     choice = encoder.getChoice();
-  } else {
+  } else if (menu_select == 0) {
     currentselect();
+  } else if (menu_select == 2) {
+    encoder.sd_select();
+    row = encoder.sd_row;
+    column = encoder.sd_column;
   }
 }
 
@@ -273,7 +279,6 @@ void getAxis() {
   __yn_status = yn_btn.get_current_status();
   __zp_status = zp_btn.get_current_status();
   __zn_status = zn_btn.get_current_status();
-
   if (!__xp_status) {
     x += axis_Increment_value;
   } else if (!__xn_status) {
