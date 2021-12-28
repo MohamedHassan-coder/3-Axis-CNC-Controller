@@ -54,6 +54,27 @@ const uint8_t Arrow_bits[]U8G_PROGMEM = {
   0x60, 0x00, 0xfe, 0x00, 0xfe, 0x01, 0xfe, 0x00, 0x60, 0x00
 };
 
+#define BT_OFF_width 20
+#define BT_OFF_height 20
+const uint8_t BT_OFF_bits[]U8G_PROGMEM  = {
+  0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x0a, 0x00, 0x08, 0x12, 0x00,
+  0x10, 0x22, 0x00, 0x20, 0x42, 0x00, 0x40, 0x22, 0x00, 0x80, 0x12, 0x00,
+  0x00, 0x0b, 0x00, 0x00, 0x06, 0x00, 0x00, 0x06, 0x00, 0x00, 0x0b, 0x00,
+  0x80, 0x12, 0x00, 0x40, 0x22, 0x00, 0x20, 0x42, 0x00, 0x10, 0x22, 0x00,
+  0x08, 0x12, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00
+};
+
+#define BT_ON_width 20
+#define BT_ON_height 20
+const uint8_t BT_ON_bits[]U8G_PROGMEM  = {
+  0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x0e, 0x00, 0x08, 0x1e, 0x00,
+  0x10, 0x3e, 0x00, 0x20, 0x7e, 0x00, 0x40, 0x3e, 0x00, 0x80, 0x1e, 0x00,
+  0x00, 0x0f, 0x00, 0x00, 0x06, 0x00, 0x00, 0x06, 0x00, 0x00, 0x0f, 0x00,
+  0x80, 0x1e, 0x00, 0x40, 0x3e, 0x00, 0x20, 0x7e, 0x00, 0x10, 0x3e, 0x00,
+  0x08, 0x1e, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00
+};
+
+
 class Screen {
   public:
     Screen();
@@ -61,26 +82,31 @@ class Screen {
     void homePage();
     void mainMenu();
     void jogMenu();
-    void mcConfig1();
-    void mcConfig2();
+    void mcConfig();
     void features();
     void moveAxis();
     void setOrigin();
     void sdFiles(String , int);
-    void notYet();
+    void feedRate();
+    void spindleSettings();
     //
 
-    bool sdCard_status , spindle_status;
+    bool sdCard_status , spindle_status , bt_status;
     void current_file_data(String  , float , float );
     void go();
     void setSelection(int);
     void sd_setSelection(int , int);
     void setCoordniates(float , float , float);
+    String feed_rate = "100.78";
+    String spindle_speed = "1000";
+    int spindle_direction = 1; //0-> CW ,1->CCW
+
 
   private:
     void _draw_spindle();
     void _draw_Sd_card();
     void _draw_axis();
+    void _draw_bluetooth();
     void _make_coordinates();
     void _other();
     void _drawArrow();
@@ -130,7 +156,15 @@ void Screen::_draw_Sd_card() {
 }
 
 void Screen:: _draw_axis() {
-  u8g.drawXBMP( 54, 2, Axes_width, Axes_height, Axes_bits);
+  u8g.drawXBMP( 74, 2, Axes_width, Axes_height, Axes_bits);
+}
+
+void Screen::_draw_bluetooth() {
+  if (bt_status) {
+    u8g.drawXBMP( 34, 2, BT_ON_width, BT_ON_height, BT_ON_bits);
+  } else {
+    u8g.drawXBMP( 34, 2, BT_OFF_width, BT_OFF_height, BT_OFF_bits);
+  }
 }
 
 void Screen:: _make_coordinates() {
@@ -179,6 +213,7 @@ void Screen:: homePage() {
     _draw_spindle();
     _draw_Sd_card();
     _draw_axis();
+    _draw_bluetooth();
     _make_coordinates();
     _other();
   } while ( u8g.nextPage() );
@@ -220,7 +255,7 @@ void Screen:: mainMenu() {
     u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
     //
     u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , "Features Menu.");
+    u8g.drawStr(__text_begin , 55 , "Features & Other.");
     u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
   } while ( u8g.nextPage() );
 }
@@ -252,37 +287,7 @@ void Screen:: jogMenu() {
   } while ( u8g.nextPage() );
 }
 
-void Screen :: mcConfig1() {
-  String s = "M/C Config Menu";
-  int w = u8g.getStrWidth(s.c_str());
-  int middle = 64 - w / 2;
-  u8g.firstPage();
-  do {
-    _drawSelectionBox(__selection);
-    u8g.setFontPosCenter();
-    u8g.setFont(u8g_font_6x10);
-    u8g.drawFrame(0, 0, 128, 64);
-    u8g.drawStr(middle, 9, s.c_str());
-    u8g.drawHLine(middle - 3 , 14 , w + 4);
-    //
-    u8g.drawHLine(__line_begin , 25 , 5);
-    u8g.drawStr(__text_begin , 25 , "Callibration.");
-    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
-    //
-    u8g.drawHLine(__line_begin , 40, 5);
-    u8g.drawStr(__text_begin , 40 , "Feed Rate.");
-    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
-    //
-    u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , "Spindle Settings.");
-    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
-    _drawSelectionBox(__selection);
-
-  } while ( u8g.nextPage() );
-}
-
-
-void Screen :: mcConfig2() {
+void Screen :: mcConfig() {
   String s = "M/C Config Menu";
   int w = u8g.getStrWidth(s.c_str());
   int middle = 64 - w / 2;
@@ -300,22 +305,27 @@ void Screen :: mcConfig2() {
     u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
     //
     u8g.drawHLine(__line_begin , 40, 5);
-    u8g.drawStr(__text_begin , 40 , "Screen Settings.");
+    u8g.drawStr(__text_begin , 40 , "Feed Rate.");
     u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
     //
     u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.setFont(u8g_font_6x10);
-    u8g.drawStr(__text_begin , 55 , "About...");
+    u8g.drawStr(__text_begin , 55 , "Spindle Settings.");
     u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
     _drawSelectionBox(__selection);
 
   } while ( u8g.nextPage() );
 }
-
 void Screen:: features() {
-  String s = "Features Menu";
+  String s = "Features & Other";
   int w = u8g.getStrWidth(s.c_str());
   int middle = 64 - w / 2;
+  //
+  String bt = "";
+  if (bt_status) {
+    bt = "ON";
+  } else {
+    bt = "OFF";
+  }
   u8g.firstPage();
   do {
     _drawSelectionBox(__selection);
@@ -332,9 +342,12 @@ void Screen:: features() {
     }
     //
     u8g.drawHLine(__line_begin , 40, 5);
-    u8g.drawStr(__text_begin , 40 , "Bluetooh.");
-    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    u8g.drawStr(__text_begin , 40 , "Bluetooh:");
+    u8g.drawStr(95, 40, bt.c_str());
     //
+    u8g.drawHLine(__line_begin , 55, 5);
+    u8g.drawStr(__text_begin , 55 , "About...");
+    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
     _drawSelectionBox(__selection);
 
   } while ( u8g.nextPage() );
@@ -484,6 +497,93 @@ void Screen::sdFiles(String files_name, int file_number) {
     }
   } while ( u8g.nextPage() );
 }
+
+void Screen:: feedRate() {
+  String s = "Feed Rate";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  //
+  String s1 = "-Max Feed Rate-";
+  int w1 = u8g.getStrWidth(s1.c_str());
+  int middle1 = 64 - w1 / 2;
+  //
+  String s2 = "300 mm/sec";
+  int w2 = u8g.getStrWidth(s2.c_str());
+  int middle2 = 64 - w2 / 2;
+  //
+  String s3 = "-Current Feed Rate-";
+  int w3 = u8g.getStrWidth(s3.c_str());
+  int middle3 = 64 - w3 / 2;
+  //
+  int w4 = u8g.getStrWidth(feed_rate.c_str());
+  int middle4 = 64 - w4 / 2;
+
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+
+    u8g.drawStr(middle1 , 22 , s1.c_str());
+    u8g.drawStr(middle2 , 32 , s2.c_str());
+    u8g.drawFrame(middle2 - 5 , 25 , w2 + 7 , 11);
+
+    u8g.drawStr(middle3 , 43 , s3.c_str());
+    u8g.drawStr(middle4 , 53 , feed_rate.c_str());
+    u8g.drawHLine(middle4 - 3 , 57 , w4 + 6);
+
+  } while ( u8g.nextPage() );
+}
+
+void Screen :: spindleSettings() {
+  String s = "Spindle Settings";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  //
+  String s1 = "Status:";
+  String spindle = "";
+  if (spindle_status) {
+    spindle = "ON";
+  } else {
+    spindle = "OFF";
+  }
+  //
+  String s2 = "Speed:";
+  //
+  String s3 = "Direction:";
+  String sdirection;
+  if (spindle_direction) {
+    sdirection = "CCW";
+  } else {
+    sdirection = "CW";
+  }
+  //
+  u8g.firstPage();
+  do {
+    _drawSelectionBox(__selection);
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , s1.c_str());
+    u8g.drawStr(95, 25, spindle.c_str() );
+    //
+    u8g.drawHLine(__line_begin , 40, 5);
+    u8g.drawStr(__text_begin , 40 , s2.c_str());
+    u8g.drawStr(95, 40, spindle_speed.c_str());
+    //
+    u8g.drawHLine(__line_begin , 55 , 5);
+    u8g.drawStr(__text_begin , 55 , s3.c_str());
+    u8g.drawStr(95, 55, sdirection.c_str());
+    _drawSelectionBox(__selection);
+  } while ( u8g.nextPage() );
+}
+
 
 //void Screen ::go() {
 //  u8g.firstPage();

@@ -2,6 +2,7 @@
 #include "Button.h"
 #include "Encoder.h"
 #include "SD_CARD.h"
+#include "KeyPad.h"
 
 //Pins
 #define __ok 5
@@ -26,6 +27,7 @@ Push_Button xp_btn (Xp, __buzzer);
 Push_Button xn_btn (Xn, __buzzer);
 Push_Button yp_btn (Yp, __buzzer);
 Push_Button yn_btn (Yn, __buzzer);
+KeyPad key_pad;
 
 bool __ok_status = LOW;
 bool __back_status = LOW;
@@ -57,12 +59,16 @@ int column , row;
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 void setup(void) {
+
   Serial.begin(9600);
-  new_s.spindle_status = true;
+  new_s.spindle_status = false;
+  new_s.bt_status = false;
   new_s.setCoordniates(x , y , z);
   new_s.sdCard_status = sd.sdAvailable();
   new_s.homePage();
   sd.getFilesData();
+  key_pad.feedRate_P = new_s.feed_rate;
+  key_pad.speed_p = new_s.spindle_speed;
   files_names = sd.files_names;
   files_sizes = sd.files_sizes;
   files_num = sd.getNumber();
@@ -130,7 +136,11 @@ void back() {
     } if (currentSubMenu ==  3 || currentSubMenu ==  4) {
       new_s.features();
       currentSubMenu = 0;
-    } else {
+    } if (currentSubMenu ==  5 || currentSubMenu ==  6 || currentSubMenu ==  7) {
+      new_s.mcConfig();
+      currentSubMenu = 0;
+    }
+    else {
       goBack();
     }
   }
@@ -187,7 +197,15 @@ void features_submenu() {
       menu_select = 0;
       break;
     case 2:
-      //bluetooth
+      if (!ok_btn.get_current_status()) {
+        if (new_s.bt_status) {
+          new_s.bt_status = false;
+          //turn bluetooth off
+        } else {
+          new_s.bt_status = true;
+          //turn bluetooth on
+        }
+      }
       break;
   }
 }
@@ -206,10 +224,80 @@ void sd_card_Menu() {
   }
 }
 
+void spindle_select() {
+  switch (choice) {
+    case 1:
+      if (!ok_btn.get_current_status()) {
+        if (new_s.spindle_status) {
+          new_s.spindle_status = false;
+          //turn spindle on (motor driver)
+        } else {
+          new_s.spindle_status = true;
+          //turn spindle off (motor driver)
+        }
+      }
+      break;
+    case 2:
+      if (ok_btn.get_current_status()) {
+        new_s.spindle_speed = key_pad.getData_speed();
+        key_pad.speed_p = new_s.spindle_speed;
+        //send speed to Driver
+      }
+      break;
+    case 3:
+      if (!ok_btn.get_current_status()) {
+        if (new_s.spindle_direction) {
+          new_s.spindle_direction = 0;
+          //spindle cw (motor driver)
+        } else {
+          new_s.spindle_direction = 1;
+          //spindle ccw (motor driver)
+        }
+      }
+      break;
+  }
+}
+
+void config_submenu() {
+  switch (choice) {
+    case 1:
+      currentSubMenu = 5;
+      while (currentSubMenu == 5) {
+        //new_s.feedRate();
+      }
+      break;
+      break;
+    case 2:
+      currentSubMenu = 6;
+      while (currentSubMenu == 6) {
+        new_s.feedRate();
+        if (ok_btn.get_current_status()) {
+          new_s.feed_rate = key_pad.getData_feedRate();
+          key_pad.feedRate_P = new_s.feed_rate;
+          //send Feed rate to grbl
+        }
+      }
+      key_pad.data = "";
+      break;
+    case 3:
+      currentSubMenu = 7;
+      encoder.resetCounter();
+      encoder.resetChoice();
+      choice = 0;
+      while (currentSubMenu == 7) {
+        new_s.spindleSettings();
+        new_s.setSelection(choice);
+        spindle_select();
+      }
+      break;
+  }
+}
+
 void currentselect() {
   encoder.currentSelection();
   choice = encoder.getChoice();
 }
+
 
 void mainMenuSelect() {
   switch (choice) {
@@ -233,14 +321,13 @@ void mainMenuSelect() {
       choice = 0;
       while (currentMenu == 3) {
         menu_select = 1;
-        new_s.mcConfig1();
+        new_s.mcConfig();
         new_s.setSelection(choice);
-        while (encoder.getCounter() > 8) {
-          new_s.mcConfig2();
+        if (!ok_btn.get_current_status()) {
+          config_submenu();
           new_s.setSelection(choice);
         }
       }
-      menu_select = 0;
       break;
     case 3:
       encoder.resetCounter();
