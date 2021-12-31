@@ -3,6 +3,8 @@
 #include "Encoder.h"
 #include "SD_CARD.h"
 #include "KeyPad.h"
+#include "Bluetooth.h"
+#include "Grbl.h"
 
 //Pins
 #define __ok 5
@@ -15,6 +17,7 @@
 #define Yn 25
 #define Zp 26
 #define Zn 27
+#define EN 36
 
 Screen new_s;
 Encoder encoder;
@@ -28,6 +31,8 @@ Push_Button xn_btn (Xn, __buzzer);
 Push_Button yp_btn (Yp, __buzzer);
 Push_Button yn_btn (Yn, __buzzer);
 KeyPad key_pad;
+Bluetooth bt;
+Grbl grbl;
 
 bool __ok_status = LOW;
 bool __back_status = LOW;
@@ -59,8 +64,9 @@ int column , row;
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 void setup(void) {
-
-  Serial.begin(9600);
+  Serial.begin(115200);
+  Serial1.begin(115200);
+  digitalWrite(EN , LOW);
   new_s.spindle_status = false;
   new_s.bt_status = false;
   new_s.setCoordniates(x , y , z);
@@ -72,6 +78,7 @@ void setup(void) {
   files_names = sd.files_names;
   files_sizes = sd.files_sizes;
   files_num = sd.getNumber();
+  grbl.load_settings_values();
   attachInterrupt(digitalPinToInterrupt(3), select , HIGH);
   attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
   Serial.println("Setup finished");
@@ -133,7 +140,7 @@ void back() {
     if (currentSubMenu ==  1 || currentSubMenu ==  2) {
       new_s.jogMenu();
       currentSubMenu = 0;
-    } if (currentSubMenu ==  3 || currentSubMenu ==  4) {
+    } if (currentSubMenu ==  3 || currentSubMenu ==  4 || currentSubMenu ==  8) {
       new_s.features();
       currentSubMenu = 0;
     } if (currentSubMenu ==  5 || currentSubMenu ==  6 || currentSubMenu ==  7) {
@@ -156,7 +163,7 @@ void jogging_submenu_go() {
       }
       break;
     case 2:
-      Serial.println("$H");
+      grbl.homing();
       x = 0;
       y = 0;
       z = 0;
@@ -189,22 +196,30 @@ void jogging_submenu_go() {
 void features_submenu() {
   switch (choice) {
     case 1:
-      currentSubMenu = 3;
-      while (currentSubMenu == 3) {
-        sd_card_Menu();
-        menu_select = 2;
+      if (!new_s.bt_status) {
+        currentSubMenu = 3;
+        while (currentSubMenu == 3) {
+          sd_card_Menu();
+          menu_select = 2;
+        }
+        menu_select = 0;
       }
-      menu_select = 0;
       break;
     case 2:
       if (!ok_btn.get_current_status()) {
         if (new_s.bt_status) {
           new_s.bt_status = false;
-          //turn bluetooth off
+          bt.bt_close();
         } else {
           new_s.bt_status = true;
-          //turn bluetooth on
+          bt.bt_open();
         }
+      }
+      break;
+    case 3:
+      currentSubMenu = 8;
+      while (currentSubMenu == 8) {
+        new_s.about();
       }
       break;
   }
@@ -257,15 +272,37 @@ void spindle_select() {
       break;
   }
 }
+void settings_grbl() {
+  new_s.grblSettings();
+  new_s.grbl_settings = key_pad.getData("---");
+  if (!ok_btn.get_current_status()) {
+    settings_grbl_new();
+  }
+}
 
+void settings_grbl_new() {
+  key_pad.data = "";
+  while (grbl.settings_exist(new_s.grbl_settings)) {
+    new_s.grblSettings();
+    new_s.grbl_value = grbl.get_grbl_value(grbl.get_settings_number(new_s.grbl_settings));
+    new_s.grbl_value = key_pad.getData(new_s.grbl_value);
+    //set data
+    if (!ok_btn.get_current_status() || !back_btn.get_current_status()) {
+      key_pad.data = "";
+      new_s.grbl_settings = "---";
+      new_s.grbl_value = "---";
+      settings_grbl_new();
+    }
+  }
+}
 void config_submenu() {
   switch (choice) {
     case 1:
       currentSubMenu = 5;
       while (currentSubMenu == 5) {
-        //new_s.feedRate();
+        settings_grbl();
       }
-      break;
+      key_pad.data = "";
       break;
     case 2:
       currentSubMenu = 6;
@@ -302,30 +339,34 @@ void currentselect() {
 void mainMenuSelect() {
   switch (choice) {
     case 1:
-      encoder.resetChoice();
-      choice = 0;
-      currentMenu = 2;
-      while (currentMenu == 2) {
-        new_s.jogMenu();
-        new_s.setSelection(choice);
-        if (!ok_btn.get_current_status()) {
-          jogging_submenu_go();
+      if (!new_s.bt_status) {
+        encoder.resetChoice();
+        choice = 0;
+        currentMenu = 2;
+        while (currentMenu == 2) {
+          new_s.jogMenu();
           new_s.setSelection(choice);
+          if (!ok_btn.get_current_status()) {
+            jogging_submenu_go();
+            new_s.setSelection(choice);
+          }
         }
       }
       break;
     case 2:
-      encoder.resetCounter();
-      encoder.resetChoice();
-      currentMenu = 3;
-      choice = 0;
-      while (currentMenu == 3) {
-        menu_select = 1;
-        new_s.mcConfig();
-        new_s.setSelection(choice);
-        if (!ok_btn.get_current_status()) {
-          config_submenu();
+      if (!new_s.bt_status) {
+        encoder.resetCounter();
+        encoder.resetChoice();
+        currentMenu = 3;
+        choice = 0;
+        while (currentMenu == 3) {
+          menu_select = 1;
+          new_s.mcConfig();
           new_s.setSelection(choice);
+          if (!ok_btn.get_current_status()) {
+            config_submenu();
+            new_s.setSelection(choice);
+          }
         }
       }
       break;

@@ -89,6 +89,10 @@ class Screen {
     void sdFiles(String , int);
     void feedRate();
     void spindleSettings();
+    void about();
+    void grblSettings();
+    void grblSettings_new(String);
+    void throwError(String);
     //
 
     bool sdCard_status , spindle_status , bt_status;
@@ -100,6 +104,8 @@ class Screen {
     String feed_rate = "100.78";
     String spindle_speed = "1000";
     int spindle_direction = 1; //0-> CW ,1->CCW
+    String grbl_settings = "---";
+    String grbl_value = "---";
 
 
   private:
@@ -584,6 +590,103 @@ void Screen :: spindleSettings() {
   } while ( u8g.nextPage() );
 }
 
+
+void Screen :: about() {
+  String s = "About";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  String l1 = "-This controller is designed";
+  String l2 = "for 3&5 axis cnc milling m/c.";
+  String l3 = "made by: Mohamed Hassan.";
+  String l4 = "-GitHub:MohamedHassan-coder";
+  String l5 = "->3-Axis-CNC-Controller.git";
+  u8g.firstPage();
+  do {
+    //    u8g.setFontLineSpacingFactor(2);
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(50, 11, "About");
+    u8g.drawHLine(48 , 14 , w + 10);
+    //
+    u8g.setFont(u8g_font_04b_03);
+    u8g.drawStr(0 , 22 , l1.c_str());
+    u8g.drawStr(5 , 30 , l2.c_str());
+    u8g.drawStr(5 , 38 , l3.c_str());
+    u8g.drawStr(0 , 50, l4.c_str());
+    u8g.drawStr(5 , 58 , l5.c_str());
+  } while ( u8g.nextPage() );
+
+}
+void Screen :: grblSettings() {
+  String s = "Grbl Settings";
+  String symbol = "$";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , "Setttings Number: ");
+    //
+    u8g.drawHLine(__line_begin , 40 , 5);
+    u8g.drawStr(__text_begin, 40 , symbol.c_str());
+    u8g.drawStr(u8g.getStrWidth(symbol.c_str()) + 15 , 40 , grbl_settings.c_str());
+    u8g.drawHLine(__text_begin , 45 , 12 + u8g.getStrWidth(grbl_settings.c_str()));
+    u8g.drawXBMP( 59, 37, Arrow_width, Arrow_height, Arrow_bits);
+    u8g.drawStr(85 , 40 , grbl_value.c_str());
+    u8g.drawHLine(85 , 45 , u8g.getStrWidth(grbl_value.c_str()));
+
+  } while ( u8g.nextPage() );
+}
+
+void Screen :: grblSettings_new(String value_name) {
+  String s = "Grbl Settings";
+  String symbol = "$";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 25 , 5);
+    u8g.drawStr(__text_begin , 25 , "Setttings Number: ");
+    //
+    u8g.drawHLine(__line_begin , 40 , 5);
+    u8g.drawStr(__text_begin, 40 , symbol.c_str());
+    u8g.drawStr(u8g.getStrWidth(symbol.c_str()) + 15 , 40 , value_name.c_str());
+    u8g.drawHLine(__text_begin , 45 , 12 + u8g.getStrWidth(value_name.c_str()));
+    u8g.drawXBMP( 59, 37, Arrow_width, Arrow_height, Arrow_bits);
+    u8g.drawStr(85 , 40 , grbl_value.c_str());
+    u8g.drawHLine(85 , 45 , u8g.getStrWidth(grbl_value.c_str()));
+
+  } while ( u8g.nextPage() );
+}
+
+void Screen :: throwError(String error) {
+  String s = "Error";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+
+  } while ( u8g.nextPage() );
+  delay(3000);
+}
 
 //void Screen ::go() {
 //  u8g.firstPage();

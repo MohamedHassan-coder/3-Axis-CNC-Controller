@@ -6,6 +6,7 @@ class KeyPad {
     KeyPad();
     String getData_feedRate();
     String getData_speed();
+    String getData(String);
     bool keyPressed();
     String data = "";
     String feedRate_P;
@@ -51,5 +52,16 @@ String KeyPad::getData_speed() {
     return data;
   } else {
     return speed_p;
+  }
+}
+String KeyPad::getData(String data_default) {
+  String s = (String) customKeypad.getKey();
+  if (s != NO_KEY && s != "#" && s != "A" && s != "B" && s != "C" && s != "D") {
+    data += s;
+  }
+  if (data != "") {
+    return data;
+  } else {
+    return data_default;
   }
 }
