@@ -79,10 +79,8 @@ class Screen {
   public:
     Screen();
     //Menues:
+    void makeMenu(String , String, bool, String, bool, String, bool);
     void homePage();
-    void mainMenu();
-    void jogMenu();
-    void mcConfig();
     void features();
     void moveAxis();
     void setOrigin();
@@ -92,6 +90,7 @@ class Screen {
     void about();
     void grblSettings();
     void grblSettings_new(String);
+    void initalizing(String);
     void throwError(String);
     //
 
@@ -126,6 +125,8 @@ class Screen {
     String files_names;
     int row , column;
     void _sd_setSelection(int , int);
+    String text1 = "", text2 = "" , text3 = "", text4 = "";
+    int count = 1;
 };
 
 Screen:: Screen() {
@@ -239,9 +240,9 @@ void Screen:: _drawSelectionBox(int selecttion) {
     u8g.drawHLine(2 , 60 , 124);
   }
 }
-void Screen:: mainMenu() {
-  String s = "Main Menu";
-  int w = u8g.getStrWidth(s.c_str());
+
+void Screen:: makeMenu(String title , String row1 , bool row1_status, String row2 , bool row2_status, String row3 , bool row3_status) {
+  int w = u8g.getStrWidth(title.c_str());
   int middle = 64 - w / 2;
   u8g.firstPage();
   do {
@@ -249,76 +250,26 @@ void Screen:: mainMenu() {
     u8g.setFontPosCenter();
     u8g.setFont(u8g_font_6x10);
     u8g.drawFrame(0, 0, 128, 64);
-    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawStr(middle, 9, title.c_str());
     u8g.drawHLine(middle - 3 , 14 , w + 4);
     //
     u8g.drawHLine(__line_begin , 25 , 5);
-    u8g.drawStr(__text_begin , 25 , "Jogging.");
-    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+    u8g.drawStr(__text_begin , 25 , row1.c_str());
+    if (row1_status) {
+      u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
+    }
     //
     u8g.drawHLine(__line_begin , 40, 5);
-    u8g.drawStr(__text_begin , 40 , "Configration.");
-    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    u8g.drawStr(__text_begin , 40 , row2.c_str());
+    if (row2_status) {
+      u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
+    }
     //
     u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , "Features & Other.");
-    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
-  } while ( u8g.nextPage() );
-}
-
-void Screen:: jogMenu() {
-  String s = "Jogging Menu";
-  int w = u8g.getStrWidth(s.c_str());
-  int middle = 64 - w / 2;
-  u8g.firstPage();
-  do {
-    _drawSelectionBox(__selection);
-    u8g.setFontPosCenter();
-    u8g.setFont(u8g_font_6x10);
-    u8g.drawFrame(0, 0, 128, 64);
-    u8g.drawStr(middle, 9, s.c_str());
-    u8g.drawHLine(middle - 3 , 14 , w + 4);
-    //
-    u8g.drawHLine(__line_begin , 25 , 5);
-    u8g.drawStr(__text_begin , 25 , "Move Axis.");
-    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
-    //
-    u8g.drawHLine(__line_begin , 40, 5);
-    u8g.drawStr(__text_begin , 40 , "Homing.");
-    //
-    u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , "Set New Origin.");
-    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
-    _drawSelectionBox(__selection);
-  } while ( u8g.nextPage() );
-}
-
-void Screen :: mcConfig() {
-  String s = "M/C Config Menu";
-  int w = u8g.getStrWidth(s.c_str());
-  int middle = 64 - w / 2;
-  u8g.firstPage();
-  do {
-    _drawSelectionBox(__selection);
-    u8g.setFontPosCenter();
-    u8g.setFont(u8g_font_6x10);
-    u8g.drawFrame(0, 0, 128, 64);
-    u8g.drawStr(middle, 9, s.c_str());
-    u8g.drawHLine(middle - 3 , 14 , w + 4);
-    //
-    u8g.drawHLine(__line_begin , 25 , 5);
-    u8g.drawStr(__text_begin , 25 , "Grbl Settings.");
-    u8g.drawXBMP( 115, 23, Arrow_width, Arrow_height, Arrow_bits);
-    //
-    u8g.drawHLine(__line_begin , 40, 5);
-    u8g.drawStr(__text_begin , 40 , "Feed Rate.");
-    u8g.drawXBMP( 115, 38, Arrow_width, Arrow_height, Arrow_bits);
-    //
-    u8g.drawHLine(__line_begin , 55 , 5);
-    u8g.drawStr(__text_begin , 55 , "Spindle Settings.");
-    u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
-    _drawSelectionBox(__selection);
-
+    u8g.drawStr(__text_begin , 55 , row3.c_str());
+    if (row3_status) {
+      u8g.drawXBMP( 115, 53, Arrow_width, Arrow_height, Arrow_bits);
+    }
   } while ( u8g.nextPage() );
 }
 void Screen:: features() {
@@ -679,18 +630,67 @@ void Screen :: throwError(String error) {
   u8g.firstPage();
   do {
     u8g.setFontPosCenter();
-    u8g.setFont(u8g_font_6x10);
+    u8g.setFont(u8g_font_5x8);
     u8g.drawFrame(0, 0, 128, 64);
     u8g.drawStr(middle, 9, s.c_str());
     u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 33, 5);
+    u8g.drawStr(__text_begin , 33 , error.c_str());
 
   } while ( u8g.nextPage() );
-  delay(3000);
+  delay(1500);
 }
 
-//void Screen ::go() {
-//  u8g.firstPage();
-//  do {
-//    setOrigin();
-//  } while ( u8g.nextPage() );
-//}
+void Screen:: initalizing(String text) {
+  u8g.setFontPosCenter();
+  u8g.setFont(u8g_font_6x10);
+  u8g.firstPage();
+  if (count > 4) {
+    count = 1;
+    text1 = "";
+    text2 = "";
+    text3 = "";
+    text4 = "";
+  }
+  do {
+    u8g.drawFrame(0, 0, 128, 64);
+    switch (count) {
+      case 1:
+        text1 = text;
+        u8g.drawHLine(__line_begin, 9 , 5);
+        u8g.drawStr(__text_begin, 9, text1.c_str());
+        break;
+      case 2:
+        text2 = text;
+        u8g.drawHLine(__line_begin, 9 , 5);
+        u8g.drawStr(__text_begin, 9, text1.c_str());
+        u8g.drawHLine(__line_begin, 25 , 5);
+        u8g.drawStr(__text_begin, 25, text2.c_str());
+        break;
+      case 3:
+        text3 = text;
+        u8g.drawHLine(__line_begin, 9 , 5);
+        u8g.drawStr(__text_begin, 9, text1.c_str());
+        u8g.drawHLine(__line_begin, 25 , 5);
+        u8g.drawStr(__text_begin, 25, text2.c_str());
+        u8g.drawHLine(__line_begin, 40 , 5);
+        u8g.drawStr(__text_begin, 40, text3.c_str());
+        break;
+      case 4:
+        text4 = text;
+        u8g.drawHLine(__line_begin, 9 , 5);
+        u8g.drawStr(__text_begin, 9, text1.c_str());
+        u8g.drawHLine(__line_begin, 25 , 5);
+        u8g.drawStr(__text_begin, 25, text2.c_str());
+        u8g.drawHLine(__line_begin, 40 , 5);
+        u8g.drawStr(__text_begin, 40, text3.c_str());
+        u8g.drawHLine(__line_begin, 55 , 5);
+        u8g.drawStr(__text_begin, 55, text4.c_str());
+        break;
+    }
+
+  } while ( u8g.nextPage() );
+  count++;
+  delay(200);
+}
