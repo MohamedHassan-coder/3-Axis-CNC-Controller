@@ -62,42 +62,41 @@ void setup(void) {
   new_s.bt_status = false;
   new_s.setCoordniates(x , y , z);
   new_s.initalizing("Get SD-Status...");
-  new_s.sdCard_status = sd.sdAvailable();
+  //new_s.sdCard_status = sd.sdAvailable();
   new_s.initalizing("Get SD-Files...");
-  sd.getFilesData();
+  //sd.getFilesData();
   key_pad.feedRate_P = new_s.feed_rate;
   key_pad.speed_p = new_s.spindle_speed;
-  files_names = sd.files_names;
-  files_sizes = sd.files_sizes;
-  files_num = sd.getNumber();
+  //files_names = sd.files_names;
+  //files_sizes = sd.files_sizes;
+  //files_num = sd.getNumber();
   new_s.initalizing("Get Grbl Values...");
   //grbl.load_settings_values();
-//  attachInterrupt(digitalPinToInterrupt(3), select , HIGH);
-//  attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
+  //  attachInterrupt(digitalPinToInterrupt(3), select , HIGH);
+  //  attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
   Serial.println("Setup finished");
   new_s.initalizing("finish Setup...");
   Serial.println("------------------------------------------------------------------------");
   //sd.loadToFile();
-  sd.loadFromFile();
-  Serial.println(sd.line);
-
+  //  sd.loadFromFile();
+  sd.beginInit();
 }
 
 void loop() {
 
 
-  
-//  new_s.homePage();
-//  nav();
-//  shield();
-//  while (currentMenu == 1) {
-//    new_s.makeMenu("Main Menu", "Jogging." , true  , "Configration." , true , "Features & Other." , true);
-//    new_s.setSelection(choice);
-//    shield();
-//    if (!ok_btn.get_current_status()) {
-//      Select();
-//    }
-//  }
+
+  //  new_s.homePage();
+  //  nav();
+  //  shield();
+  //  while (currentMenu == 1) {
+  //    new_s.makeMenu("Main Menu", "Jogging." , true  , "Configration." , true , "Features & Other." , true);
+  //    new_s.setSelection(choice);
+  //    shield();
+  //    if (!ok_btn.get_current_status()) {
+  //      Select();
+  //    }
+  //  }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
