@@ -52,8 +52,8 @@ int column , row;
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 void setup(void) {
-  new_s.initalizing("Power ON...");
-  new_s.initalizing("Begin Setup...");
+  new_s.initalizing("Power ON");
+  new_s.initalizing("Begin Setup");
   Serial.begin(115200);
   Serial1.begin(115200);
   Serial.println("Setup Begin");
@@ -61,31 +61,54 @@ void setup(void) {
   new_s.spindle_status = false;
   new_s.bt_status = false;
   new_s.setCoordniates(x , y , z);
-  new_s.initalizing("Get SD-Status...");
-  //new_s.sdCard_status = sd.sdAvailable();
-  new_s.initalizing("Get SD-Files...");
-  //sd.getFilesData();
+  new_s.initalizing("Begin Init. SD-Card");
+  sd.beginInit();
+  new_s.sdCard_status = sd.getSDStatus();
+  files_names = sd.files_names;
+  files_sizes = sd.files_sizes;
+  files_num = sd.getNumber();
+  sd_Continue_Init();
+  new_s.initalizing("Finish Init. SD-Card");
   key_pad.feedRate_P = new_s.feed_rate;
   key_pad.speed_p = new_s.spindle_speed;
-  //files_names = sd.files_names;
-  //files_sizes = sd.files_sizes;
-  //files_num = sd.getNumber();
-  new_s.initalizing("Get Grbl Values...");
-  //grbl.load_settings_values();
-  //  attachInterrupt(digitalPinToInterrupt(3), select , HIGH);
-  //  attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
+  //attachInterrupt(digitalPinToInterrupt(3), select , HIGH);
+  //attachInterrupt(digitalPinToInterrupt(__back), back , FALLING );
   Serial.println("Setup finished");
-  new_s.initalizing("finish Setup...");
+  new_s.initalizing("Finish Setup...");
   Serial.println("------------------------------------------------------------------------");
   //sd.loadToFile();
   //  sd.loadFromFile();
-  sd.beginInit();
+  if (Serial1) {
+    Serial.println("Connected");
+  } else {
+    Serial.println("Not - Connected");
+  }
+  grbl.unlock();
+  delay(20);
+  while (Serial1.available() > 0) {
+    Serial.println("---->reading data");
+    Serial.println(Serial1.readString());
+  }
+  grbl.load_settings_values();
+  grbl.print_data();
 }
 
 void loop() {
 
+  while (Serial1.available() > 0) {
+    String s = Serial1.readStringUntil('[');
+    String s1 = Serial1.readString();
+    s.trim();
+    //Serial.println(s);
+    if (s == "ALARM: Hard limit") {
+      Serial.println("Hard Limit");
+    } else {
+      Serial.println("-------------------------------------------> " + s);
+    }
+  }
 
 
+  //
   //  new_s.homePage();
   //  nav();
   //  shield();
@@ -106,7 +129,7 @@ void loop() {
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-
+//
 //void nav() {
 //  __ok_status = ok_btn.get_current_status();
 //  if (!__ok_status) {
@@ -458,3 +481,10 @@ void loop() {
 //    //Feed Resume
 //  }
 //}
+void sd_Continue_Init() {
+  if (sd.getfileResumed() == "1") {
+    new_s.initalizing("File Interrupted");
+  } else {
+    new_s.initalizing("No File Interrupted");
+  }
+}

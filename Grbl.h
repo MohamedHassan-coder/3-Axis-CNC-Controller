@@ -129,7 +129,7 @@ void Grbl :: format(String s) {
 
 void Grbl :: load_settings_values() {
   Serial1.print("\r\n\r\n");
-  delay(5);
+  delay(10);
   Serial1.println("$$");
   while (Serial1.available() > 0) {
     inputString = Serial1.readStringUntil('\n');
