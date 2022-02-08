@@ -12,6 +12,11 @@ class Grbl {
     bool settings_exist(String);
     String get_grbl_value(int);
     int get_settings_number(String);
+    void Abort();
+    void hold();
+    void Resume();
+    void real_time();
+
 
 
   private:
@@ -112,6 +117,24 @@ void Grbl :: homing() {
 void Grbl :: unlock() {
   Serial.println("$X");
   Serial1.println("$X");
+}
+
+void Grbl :: hold() {
+  Serial.println("!");
+  Serial1.println("!");
+}
+void Grbl :: Resume() {
+  Serial.println("~");
+  Serial1.println("~");
+}
+void Grbl :: Abort() {
+  Serial.println("Abort");
+  //Send low to the Abort pin
+}
+
+void Grbl:: real_time() {
+  Serial.println("?");
+  Serial1.println("?");
 }
 
 void Grbl :: format(String s) {

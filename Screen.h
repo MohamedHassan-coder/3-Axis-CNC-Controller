@@ -112,6 +112,7 @@ class Screen {
     void grblSettings_new(String);
     void initalizing(String);
     void throwError(String);
+    void throwWarning(String);
     //
 
     bool sdCard_status , spindle_status , bt_status;
@@ -292,6 +293,7 @@ void Screen:: makeMenu(String title , String row1 , bool row1_status, String row
     }
   } while ( u8g.nextPage() );
 }
+
 void Screen:: features() {
   String s = "Features & Other";
   int w = u8g.getStrWidth(s.c_str());
@@ -440,7 +442,6 @@ String Screen:: _getFileName(int file_number) {
   return s1;
 }
 
-
 void Screen::sdFiles(String files_name, int file_number) {
 
   String s = "SD-Card Files";
@@ -561,7 +562,6 @@ void Screen :: spindleSettings() {
   } while ( u8g.nextPage() );
 }
 
-
 void Screen :: about() {
   String s = "About";
   int w = u8g.getStrWidth(s.c_str());
@@ -589,6 +589,7 @@ void Screen :: about() {
   } while ( u8g.nextPage() );
 
 }
+
 void Screen :: grblSettings() {
   String s = "Grbl Settings";
   String symbol = "$";
@@ -645,6 +646,25 @@ void Screen :: grblSettings_new(String value_name) {
 
 void Screen :: throwError(String error) {
   String s = "Error";
+  int w = u8g.getStrWidth(s.c_str());
+  int middle = 64 - w / 2;
+  u8g.firstPage();
+  do {
+    u8g.setFontPosCenter();
+    u8g.setFont(u8g_font_6x10);
+    u8g.drawFrame(0, 0, 128, 64);
+    u8g.drawStr(middle, 9, s.c_str());
+    u8g.drawHLine(middle - 3 , 14 , w + 4);
+    //
+    u8g.drawHLine(__line_begin , 33, 5);
+    u8g.drawStr(__text_begin , 33 , error.c_str());
+
+  } while ( u8g.nextPage() );
+  delay(1500);
+}
+
+void Screen :: throwWarning(String error) {
+  String s = "Warning";
   int w = u8g.getStrWidth(s.c_str());
   int middle = 64 - w / 2;
   u8g.firstPage();
