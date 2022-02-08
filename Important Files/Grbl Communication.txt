@@ -1,0 +1,27 @@
+Abort -->
+An unexpected error was detected: ALARM: Abort during cycle
+Grbl 0.9j ['$' for help]
+---------------------
+E-Stop:
+error: Alarm lock. Streaming has been paused.
+Grbl 0.9j ['$' for help]
+['$H'|'$X' to unlock]
+---------------------
+Start up:
+Grbl 0.9j ['$' for help]
+['$H'|'$X' to unlock]
+
+---------------------
+ok
+---------------------
+Hard limit :
+ALARM: Hard limit
+---------------------
+Error:
+error: Bad number format
+---------------------
+Hold:
+<Hold>
+---------------------
+Unlock:
+[Caution: Unlocked]
